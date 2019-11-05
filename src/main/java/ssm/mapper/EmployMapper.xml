@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--等价于dao接口的实现 namespace必须和接口的类路径一样 -->
+<mapper namespace="ssm.dao.EmployDao">
+	<select id="getList" parameterType="map" resultType="ssm.bean.Employee">
+		select id,name11 username from employee
+		<where>
+			<if test="username!= null">
+				and name11 like concat('%',#{username},'%')
+			</if>
+		</where>
+		limit #{start},#{length}
+	</select>
+	
+	<insert id="insert" parameterType="ssm.dao.EmployDao">
+		insert into employee(name11,salary) values(#{username},#{salary});
+	</insert>
+	<update id="update" parameterType="ssm.dao.EmployDao">
+		update employee set name11=#{username},salary=#{salary} where id = #{id}
+	</update>
+	<delete id="deleteById" parameterType="int">
+		delete from employee where id = #{id}
+	</delete>
+	<select id="getCount" resultType="int">
+		select count(*) from employee	
+		<where>
+			<if test="username!= null">
+				and name11 like concat('%',#{username},'%')
+			</if>
+		</where>
+	</select>
+	
+	<select id="getById" parameterType="int" resultType="ssm.bean.Employee">
+		select id,name11 username,salary from employee where id=#{id}
+	</select>
+</mapper>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--等价于dao接口的实现 namespace必须和接口的类路径一样 -->
+<mapper namespace="ssm.dao.PriceDao">
+	<insert id="insert" parameterType="ssm.bean.Price">
+		insert into price(month,waterprice,electricPrice,gasPrice,wuyePrice)
+			values(#{month},#{waterprice},#{electricPrice},#{gasPrice},#{wuyePrice});
+	</insert>
+	<!-- <update id="updateById" parameterType="ssm.bean.Price">
+		update price set month=#{month},waterprice=#{waterprice},electricPrice=#{electricPrice},gasPrice=#{gasPrice},wuyePrice=#{wuyePrice}
+		where id = #{id}
+	</update> -->
+	<select id="check" parameterType="string" resultType="integer">
+		select id from price where month = #{month}
+	</select>
+	<select id="getList" parameterType="map" resultType="ssm.bean.Price">
+		select * from price order by month desc limit #{start},#{length}
+	</select>
+	<select id="getCount" resultType="integer">
+		select count(*) from price
+	</select>
+	<update id="updateById" parameterType="ssm.bean.Price">
+		update price set waterprice=#{waterprice},electricPrice=#{electricPrice},gasPrice=#{gasPrice},wuyePrice=#{wuyePrice} where id=#{id}
+	</update>
+	<delete id="delete" parameterType="integer[]">
+		delete from price where id in (
+			<foreach collection="array" separator="," item="id">
+				#{id}
+			</foreach>
+			)
+	</delete>
+</mapper>

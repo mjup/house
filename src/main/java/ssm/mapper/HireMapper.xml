@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--等价于dao接口的实现 namespace必须和接口的类路径一样 -->
+<mapper namespace="ssm.dao.HireDao">
+	<insert id="insert" parameterType="ssm.bean.Hire">
+		insert into hire(pid,hname,houseid,hphone,hcharge,startdate,lease,rname,tdate,descr)
+			values(#{pid},#{hname},#{houseid},#{hphone},#{hcharge},#{startdate},#{lease},#{rname},#{tdate},#{descr})
+	</insert>
+	<select id="getMapById" parameterType="Integer" resultType="map">
+		SELECT parkingspace.id,hire.hname,hire.houseid,hire.hphone,hire.lease,hire.startdate,DATE_ADD(hire.startdate,INTERVAL hire.lease year) enddate,hire.hcharge,hire.rname,hire.tdate,hire.descr from parkingspace,hire 
+			where parkingspace.id=#{id} and parkingspace.id = hire.pid and DATEDIFF(DATE_ADD(startdate,INTERVAL lease year),NOW())>0
+	</select>
+	<select id="getrelet" parameterType="Integer" resultType="map">
+		SELECT hire.id,parkingspace.location,parkingspace.width,parkingspace.length,hire.hcharge,hire.houseid,hire.hname,hire.hphone,hire.startdate,parkingspace.maxyear,hire.lease,hire.rname,hire.descr
+			from parkingspace,hire 
+			where parkingspace.id=#{id} and parkingspace.id = hire.pid and DATEDIFF(DATE_ADD(startdate,INTERVAL lease year),NOW())>0
+	</select>
+	<update id="updateById" parameterType="ssm.bean.Hire">
+		update hire set descr=#{descr},rname=#{rname},lease=#{lease} where id = #{id}
+	</update>
+	<select id="getList" parameterType="map" resultType="ssm.bean.Hire">
+		select * from hire where pid=#{pid} order by startdate limit #{start},#{length}
+	</select>
+	<select id="getCount" parameterType="map" resultType="integer">
+		select count(*) from hire where pid=#{pid}
+	</select>
+	<delete id="delete" parameterType="integer[]">
+		delete from hire where id in(
+			<foreach collection="array" separator="," item="aa">
+				#{aa}
+			</foreach>
+				)
+	</delete>
+</mapper>

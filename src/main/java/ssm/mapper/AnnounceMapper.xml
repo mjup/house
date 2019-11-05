@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--等价于dao接口的实现 namespace必须和接口的类路径一样 -->
+<mapper namespace="ssm.dao.AnnounceDao">
+	<insert id="insert" parameterType="ssm.bean.Announce">
+		insert into announce(title,content,sdate) values(#{title},#{content},now())
+	</insert>
+	<select id="getList" parameterType="map" resultType="ssm.bean.Announce">
+		select * from announce 
+			<where>
+				<if test="startdate!=null and enddate!=null">
+					and sdate between #{startdate} and #{enddate}
+				</if>
+			</where>
+			limit #{start},#{length}
+	</select>
+	<select id="getCount" parameterType="map" resultType="integer">
+		select count(*) from announce
+			<where>
+				<if test="startdate!=null and enddate!=null">
+					and sdate between #{startdate} and #{enddate}
+				</if>
+			</where>
+	</select>
+	<delete id="delete" parameterType="integer[]">
+		delete from announce where id  in (
+		<foreach collection="array" item="id" separator=",">
+			#{id}
+		</foreach>
+		)
+	</delete>
+	<select id="getRecent" resultType="ssm.bean.Announce">
+		select * from announce order by sdate limit 0,1
+	</select>
+</mapper>

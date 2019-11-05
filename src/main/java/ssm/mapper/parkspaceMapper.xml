@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--等价于dao接口的实现 namespace必须和接口的类路径一样 -->
+<mapper namespace="ssm.dao.ParkSpaceDao">
+	<insert id="insert" parameterType="ssm.bean.ParkingSpace">
+		insert into parkingspace(id,location,length,width,status,maxyear,charge,note)
+		values(#{id},#{location},#{length},#{width},#{status},#{maxyear},#{charge},#{note})
+	</insert>
+	<select id="getList" parameterType="map" resultType="ssm.bean.ParkingSpace" statementType="CALLABLE">
+		call updatestatus;
+		select * from parkingspace 
+			<where>
+				<if test="status!=null">
+					and status=#{status}
+				</if>
+				<if test="location!=null">
+					and location=#{location}
+				</if>
+			</where>
+			order by id
+			limit #{start},#{length}
+	</select>
+	<select id="getCount" parameterType="map" resultType="integer">
+		select count(*) from parkingspace 
+			<where>
+				<if test="status!=null">
+					and status=#{status}
+				</if>
+				<if test="location!=null">
+					and location=#{location}
+				</if>
+			</where>
+	</select>
+	<select id="checkid" parameterType="integer" resultType="integer">
+		select id from  parkingspace where id = #{id}
+	</select>
+	<delete id="delete" parameterType="integer[]">
+		delete from parkingspace where id in (
+			<foreach collection="array" separator="," item="id">
+				#{id}
+			</foreach>
+			)
+	</delete>
+	<select id="getLocations" resultType="string">
+		select location from parkingspace group by location
+	</select>
+</mapper>

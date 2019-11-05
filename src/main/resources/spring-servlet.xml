@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context" 
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:tx="http://www.springframework.org/schema/tx" 
+    xmlns:mvc="http://www.springframework.org/schema/mvc" 
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd"
+    >
+    		<!-- 好像这样就会自动配置了4个bean，为了能够使用autowired等注解 -->
+    		<!-- <context:annotation-config></context:annotation-config> -->
+    		<!-- 配置了scan这个就可以不用上面的了 -->
+			<context:component-scan base-package="ssm.controller"></context:component-scan>
+        	<!-- <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        		<property name="prefix" value = "/"></property>
+        		<property name="suffix" value = ".jsp"></property>
+        	</bean> -->
+        	
+        	<!--这种方法不知道怎么回事，配置了的话则在url-parttern中设置为/就好用了，否则和struts2中设置一样*.do也可以用  -->
+        	<!-- 自动配置了4个bean，好像主要用来和requestMapping映射用的 -->
+        	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        		 <property name="defaultEncoding" value="UTF-8" />
+       <!-- 指定所上传文件的总大小,单位字节。注意maxUploadSize属性的限制不是针对单个文件，而是所有文件的容量之和 -->
+     			<property name="maxUploadSize" value="10240000" />
+        	</bean> 
+        <mvc:annotation-driven /> 
+			<!-- <mvc:resources location="/image/" mapping="/image/**"/> 
+			<mvc:resources location="/css/" mapping="/css/**"/> 
+			<mvc:resources location="/js/" mapping="/js/**"/> -->
+        </beans>

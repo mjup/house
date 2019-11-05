@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--等价于dao接口的实现 namespace必须和接口的类路径一样 -->
+<mapper namespace="ssm.dao.ElectricDao">
+	<insert id="insertBatch" parameterType="map">
+		insert into electric(houseid,floorid,electric,month) values
+			<foreach collection="list" separator="," item="item">
+				(#{item.houseid},#{floorid},#{item.electric},#{month})
+			</foreach>
+	</insert>
+	<select id="check" parameterType="map" resultType="string">
+		select month from (select month,floorid from electric group by month,floorid) a where a.month = #{month} and a.floorid = #{floorid}
+	</select>
+</mapper>

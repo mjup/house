@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--等价于dao接口的实现 namespace必须和接口的类路径一样 -->
+<mapper namespace="ssm.dao.ChargeDao">
+<resultMap type="ssm.bean.Charge" id="charge">
+	<result column="electirc" property="electric"/>
+</resultMap>
+	<insert id="loadData" parameterType="map">
+		insert into charge(houseid,month,water,electirc,gas,wuye)
+			select a.houseid,month__,waterPrice__,electricprice__,gasprice__,wuye__ from 
+			(select houseid,water*price.waterprice waterPrice__,water.`month` month__,price.wuyeprice wuye__ from water,price where water.`month`=#{month} and water.floorid = #{floorid} and price.`month`=#{month}) a 
+			,
+			(select houseid,electric*price.electricprice electricprice__ from electric,price where electric.`month`=#{month} and electric.floorid = #{floorid} and price.`month`=#{month}) b
+			,
+			(select houseid,gas*price.gasprice gasprice__ from gas,price where gas.`month`=#{month} and gas.floorid = #{floorid} and price.`month`=#{month}) c
+			where a.houseid=b.houseid and a.houseid = c.houseid
+	</insert>
+	<select id="getList" parameterType="map" resultMap="charge">
+		select charge.* from charge,house where charge.houseid = house.account and charge.`month`=#{month} and house.floorid=#{floorid}
+			<if test="status!=null">
+				and status=#{status}
+			</if>
+		 limit #{start},#{length}
+	</select>
+	<select id="getCount" parameterType="map" resultType="integer">
+		select count(*) from charge,house where charge.houseid = house.account and charge.`month`=#{month} and house.floorid=#{floorid}
+		<if test="status!=null">
+				and status=#{status}
+			</if>
+	</select>
+	<select id="getDetail" parameterType="integer" resultType="map">
+		select * from
+			(select house.`owner`,house.account,house.ownerphone,month from house,(select houseid,`month` from charge where id=#{id}) a where house.account=a.houseid) a,
+			(select water from water,(select houseid,`month` from charge where id=#{id}) a where water.houseid=a.houseid and water.`month` = a.`month`) b,
+			(select electric from electric,(select houseid,`month` from charge where id=#{id}) a where electric.houseid=a.houseid and electric.`month` = a.`month`) c,
+			(select gas from gas,(select houseid,`month` from charge where id=#{id}) a where gas.houseid=a.houseid and gas.`month` = a.`month`) d
+	</select>
+	<select id="getMapByMap" parameterType="map" resultType="map">
+		select * from
+			(select house.`owner`,house.account,house.ownerphone,electircPrice,gasPrice,waterPrice,wuyePrice,month,status,cdate from house,(select houseid,`month`,electirc electircPrice,gas gasPrice,water waterPrice,wuye wuyePrice,status,cdate from charge where houseid=#{houseid} and `month`=#{month}) a where house.account=a.houseid) a,
+			(select water from water,(select houseid,`month` from charge where houseid=#{houseid} and `month`=#{month}) a where water.houseid=a.houseid and water.`month` = a.`month`) b,
+			(select electric from electric,(select houseid,`month` from charge where houseid=#{houseid} and `month`=#{month}) a where electric.houseid=a.houseid and electric.`month` = a.`month`) c,
+			(select gas from gas,(select houseid,`month` from charge where houseid=#{houseid} and `month`=#{month}) a where gas.houseid=a.houseid and gas.`month` = a.`month`) d
+	</select>
+	<select id="getDetailForLook" parameterType="integer" resultType="map">
+		select * from
+			(select house.`owner`,house.ownerphone,a.* from house,(select * from charge where id=#{id}) a where house.account=a.houseid) aa,
+			(select water waterPrice from water,(select houseid,`month` from charge where id=#{id}) a where water.houseid=a.houseid and water.`month` = a.`month`) bb,
+			(select electric electricPrice from electric,(select houseid,`month` from charge where id=#{id}) a where electric.houseid=a.houseid and electric.`month` = a.`month`) cc,
+			(select gas gasPrice from gas,(select houseid,`month` from charge where id=#{id}) a where gas.houseid=a.houseid and gas.`month` = a.`month`) dd
+	</select>
+	<update id="updateStatus" parameterType="map">
+		update charge set status =1,rname=#{rname},cdate=now(),means=#{means} where houseid=#{houseid} and `month`=#{month}
+	</update>
+	<select id="getCountList" parameterType="string" resultType="map">
+		SELECT month,SUM(water) water,SUM(electric) electric,SUM(`gas`) gas from(
+			select water,electric,gas,water.`month` from water,gas,electric 
+			where water.`month` LIKE '2017%' and water.houseid = gas.houseid and water.`month` = gas.`month` and water.houseid = electric.houseid and water.`month` = electric.`month`) a GROUP BY month 
+			union
+		SELECT '总计',SUM(water) water,SUM(electric) electric,SUM(`gas`) gas from(
+			select water,electric,gas,water.`month` from water,gas,electric 
+			where water.`month` LIKE '2017%' and water.houseid = gas.houseid and water.`month` = gas.`month` and water.houseid = electric.houseid and water.`month` = electric.`month`) a ORDER BY month
+	</select>
+	<select id="check" parameterType="string" resultType="string">
+		select month from (select month from charge group by month) a where a.month = #{month}
+	</select>
+</mapper>

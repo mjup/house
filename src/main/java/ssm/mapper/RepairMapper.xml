@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--等价于dao接口的实现 namespace必须和接口的类路径一样 -->
+<mapper namespace="ssm.dao.RepairDao">
+	<insert id="insert" parameterType="ssm.bean.Repair">
+		insert into repair(houseid,category,descr,reportdate,means,status,repairdate,principal,material,upkeep,completedate,paydate)
+			values(#{houseid},#{category},#{descr},now(),#{means},0,#{repairdate},#{principal},#{material},#{upkeep},#{completedate},#{paydate})
+	</insert>
+	<select id="getList"  parameterType="map" resultType="ssm.bean.Repair">
+		select * from repair
+			<where>
+				<if test="status!=null">
+					and status = #{status}
+				</if>
+				<if test="reportdate!=null">
+					and reportdate = #{reportdate}
+				</if>
+				<if test="category!=null">
+					and category=#{category}
+				</if>
+				<if test="startdate!=null and enddate!=null">
+					and reportdate BETWEEN #{startdate} and #{enddate}
+				</if>
+				<if test="account!=null">
+					and houseid = #{account}
+				</if>
+				</where>
+				limit #{start},#{length}
+			
+	</select>
+	<select id="getCount" parameterType="map" resultType="integer">
+		select count(*) from repair
+			<where>
+				<if test="status!=null">
+					and status = #{status}
+				</if>
+				<if test="reportdate!=null">
+					and reportdate = #{reportdate}
+				</if>
+				<if test="category!=null">
+					and category=#{category}
+				</if>
+				<if test="startdate!=null and enddate!=null">
+					and reportdate BETWEEN #{startdate} and #{enddate}
+				</if>
+				<if test="account!=null">
+					and houseid = #{account}
+				</if>
+			</where>
+	</select>
+	<select id="getInfoForRepair" parameterType="int" resultType="map">
+		select repair.id,repair.category,repair.reportdate,house.account,house.owner,house.ownerphone,repair.means,repair.descr,repair.principal,repair.repairdate,repair.completedate,repair.material,repair.upkeep
+			from repair,house 
+			where repair.id = #{id} and repair.houseid=house.account
+	</select>
+	<update id="updateRepair" parameterType="ssm.bean.Repair">
+		update repair set principal = #{principal},status=1 where id = #{id}
+	</update>
+	<update id="updateComplete" parameterType="ssm.bean.Repair">
+		update repair set material=#{material},upkeep=#{upkeep},repairdate=#{repairdate},completedate=#{completedate} 
+				,status=#{status}
+			<if test="paydate!=null">
+				,paydate=#{paydate}
+			</if>
+		where id=#{id}
+	</update>
+	<delete id="delete" parameterType="integer[]">
+		delete from repair where id in (
+			<foreach collection="array" separator="," item="id">
+				#{id}
+			</foreach>
+			)
+	</delete>
+	<select id="getListForCount" parameterType="map" resultType="ssm.bean.Repair">
+		select * from repair
+			<where>
+				<if test="principal!=null">
+					and principal = #{principal}
+				</if>
+				<if test="time!=null">
+					and completedate like concat(#{time},'%')
+				</if>
+			</where>
+	</select>
+	<select id="getCountForCount" parameterType="map" resultType="map">
+		select sum(material) material,sum(upkeep) upkeep from repair 
+			<where>
+				<if test="principal!=null">
+					and principal = #{principal}
+				</if>
+				<if test="time!=null">
+					and completedate like concat(#{time},'%')
+				</if>
+			</where>
+	</select>
+</mapper>

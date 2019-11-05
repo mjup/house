@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--等价于dao接口的实现 namespace必须和接口的类路径一样 -->
+<mapper namespace="ssm.dao.UserDao">
+	<select id="checkAccount" parameterType="string" resultType="integer">
+		select id from user where account = #{account}
+	</select>
+	<insert id="insert" parameterType="ssm.bean.User">
+		insert into user(account,pwd) values(#{account},#{pwd})
+	</insert>
+	<select id="checkUser" parameterType="ssm.bean.User" resultType="map">
+		select user.account,user.id,house.owner from user,house where user.account=#{account} and user.pwd=#{pwd} and user.account=house.account 			
+	</select>
+</mapper>
